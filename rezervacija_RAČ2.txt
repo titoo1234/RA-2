@@ -1,0 +1,28 @@
+Naloge iz Ericksonove knjige, poglavje o Dinamičnem programiranju:
+-naloga 1, stran 123
+Imamo podano množico števil, ki predstavljajo vrednosti kovancev, ki jih imamo na voljo(npr. kovance v vrednosti 
+$1, $4, $7, $13, $28, $52, $91, in $365) in celo število k. Naša naloga je, da izberemo čim manjše število kovancev, tako, da bo vsota vrednsoti vseh kovancev 
+enaka podanemu številu k. Nalogo posksusimo rešiti na 3 načine:
+a)S požrešno metodo, tako da vedno vzamemo kovanec z največjo možno vrednostjo. Hitro lahko opazimo, da s to metodo ne pridemo vedno do pravilne rešitve.
+b)Z rekurzivno furmulo
+c)S pomočjo dinamičnega programiranja
+
+
+-naloga 32, stran 141 
+Osnovni aritmetični izraz je sestavljen iz nabora znakov {1,+,×} in oklepajev. Skoraj vsako število lahko predstavimo na več kot en način 
+z osnovnim aritmetičnim izrazi. Recimo, število 14 lahko izračunamo na naslednje načine:
+1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1
+((1 + 1) × (1 + 1 + 1 + 1 + 1)) + ((1 + 1) × (1 + 1))
+(1 + 1) × (1 + 1 + 1 + 1 + 1 + 1 + 1)
+(1 + 1) × (((1 + 1 + 1) × (1 + 1)) + 1)
+Podano imamo število k.
+Želimo napisati algoritem, ki nam pove, kolikšno je najmanjše število enic, ki jih potrebujemo za zapis izraza, katerega vrednost je enaka podanemu številu k.
+
+
+Viri:
+- Ericksonove knjiga, poglavje o Dinamičnem programiranju. Tukaj sta problema predstavljena.
+
+- https://www.geeksforgeeks.org/find-minimum-number-of-coins-that-make-a-change/ Predstavljen problem s kovanci. Opisana je rekurzivna in dinamična rešitev.
+
+- https://courses.engr.illinois.edu/cs374/sp2017/labs/solutions/lab8bis-sol.pdf Predstavljen problem minimalnega števila enic v izrazu. V članku je zapisana rekurzivna
+rešitev dange problema.
