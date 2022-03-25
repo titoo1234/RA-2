@@ -1,0 +1,541 @@
+\documentclass[12pt]{article}
+ \usepackage[utf8]{inputenc}
+   \usepackage[slovene]{babel}
+\usepackage{amsthm,amsfonts,amsmath,amssymb,url}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{pifont}
+\usepackage{ bbding }
+
+% \usepackage[table,xcdraw]{xcolor} 
+\graphicspath{ {./images/} }
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                                 
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\textheight 210 true mm
+\textwidth 146 true mm
+\voffset=-17mm
+\hoffset=-13mm
+
+\newtheorem{Izrek}{{\sc Izrek}}[section]
+\newtheorem{Trditev}[Izrek]{{\sc Trditev}}
+\newtheorem{Lema}[Izrek]{{\sc Lema}}
+\newtheorem{Posledica}[Izrek]{{\sc Posledica}}
+\newtheorem{Definicija}[Izrek]{{\sc Definicija}}
+\newtheorem{Domneva}[Izrek]{{\sc Domneva}}
+\newtheorem{Zgled}[Izrek]{{\sc Zgled}}
+\newtheorem{Opomba}[Izrek]{{\sc Opomba}}
+
+\def\theIzrek{{\rm \arabic{section}.\arabic{Izrek}}}
+
+\newenvironment{izrek}{\begin{Izrek}\sl}{\end{Izrek}}
+\newenvironment{trditev}{\begin{Trditev}\sl}{\end{Trditev}}
+\newenvironment{lema}{\begin{Lema}\sl}{\end{Lema}}
+\newenvironment{posledica}{\begin{Posledica}\sl}{\end{Posledica}}
+\newenvironment{definicija}{\begin{Definicija}\rm }{\end{Definicija}}
+\newenvironment{domneva}{\begin{Domneva}\rm }{\end{Domneva}}
+\newenvironment{zgled}{\begin{Zgled}\rm}{\end{Zgled}}
+\newenvironment{opomba}{\begin{Opomba}\rm}{\end{Opomba}}
+
+\newenvironment{dokaz}[1][{\sc Dokaz}]{\begin{proof}[#1]\renewcommand*{\qedsymbol}{\(\square\)}}{\end{proof}}
+
+\newcommand{\Mod}[1]{\hbox{ (mod } #1)}
+\newcommand{\xmark}{\ding{55}}%
+\begin{document}
+
+\thispagestyle{empty}
+\begin{center}
+\begin{Large}
+{\bf Problem vsote podmnožic}
+\end{Large}
+\\[5mm]
+\begin{large}
+Pisni izdelek pri predmetu {\em Računalništvo 1}
+\\[5mm]
+{\sc Tit Arnšek}
+\\[10mm]
+31.~december, 2021
+\end{large}
+
+\end{center}
+
+\newpage
+
+\tableofcontents
+\newpage
+\listoffigures
+
+\newpage
+\section{Uvod}
+Problem vsote podmnožic je v računalništvu problem odločanja(tj. problem, na katerega
+lahko odgovorimo z da/ne).\newline
+Pri problemu imamo podano množico nenegativnih celih števil in pozitivno  celo število. Števila v množici so neurejena.  
+Zanima nas, ali obstaja kakšna podmnožica dane množice, katere vsota elementov se sešteje v  število, ki smo ga podali.
+Zanimalo nas ne bo, koliko je takšnih podmnožic in katera števila vsebujejo, ampak samo, ali obstaja kakšna ali ne. \newline
+Problem lahko definiramo tudi za multimnožice (dovolimo ponavljanje elementov), ampak bomo uporabljali le "prave" množice. 
+Načeloma pa se vsi algoritmi, ki jih bomo obravnavali, obnašajo enako, tudi če uporabimo multimnožice.
+
+ Primer:
+
+\[ Mn = \{1,3,6,7,33,8,15\}; vsota = 16\]
+ $$Resitev: \{3,6,7\},\{1,7,8\},\{1,15\}  \colorbox{green}{\checkmark}$$ 
+V zgornjem primeru vdimo da takšna podmnožica obstaja. 
+
+ $$Mn = \{1,3,6,7,33,8,15\}; vsota = 33$$
+ $$Resitev: \{33\} \colorbox{green}{\checkmark}$$ 
+Tudi v tem primeru obstaja takšna podmnožica
+
+ $$Mn = \{1,3,6,7,33,8,15\}; vsota = 5   $$
+ $$Resitev: \colorbox{red}{\text{\sffamily X}}$$ 
+ V tem primeru pa takšne podmnožice ni.
+ \newline
+
+ V zgornjih primerih je bilo precej enostavno ugotoviti, ali takšna
+ podmnožica obstaja. Kaj pa če imamo v podani množici veliko števil?\newline
+Vzemimo spodnjo množico in vsoto:
+
+ \[Mn = \{86, 50, 49, 42, 83, 8, 90, 56, 6,26, 73, 8, 47, 21, 4, 24,\]
+ \[15, 57, 61, 100, 66, 86, 68,  99, 40, 22, 43, 32, 89, 92\}; vsota = 1100\]\newline
+V tem primeru pa ni takoj vidno, ali takšna podmnožica obstaja ali ne.
+Izkaže se, da takšna podmnožica obstaja, postopke, ki pripeljejo do tega spoznanja, pa
+bomo opisali kasneje.\newline
+V nadaljevanju so opisani trije algoritmi, s katerimi 
+rešimo dani problem.
+
+
+
+\section{Eksponentni Algoritmi}
+Prva dva algoritma, ki sta opisana, imata eksponentno časovno zahtevnost.
+ 
+
+  \subsection{Brute - force}
+  \label{sec:brute}
+  Prvi algoritem je zasnovan na strategiji uporabe grobe sile.
+  Pri tej metodi moramo poiskati vse možne podmnožice in izračunati njihove vsote.
+  \subsubsection{Implementacija kode}  
+  Sam algoritem bi v pythonu napisali na sledeči način:
+  \label{sec:koda}
+ \begin{lstlisting}
+
+  def vsota_podmnozic_brute_force(S, k):
+    '''
+        brute force metoda za iskanje vseh podmnozic mnozice 'S',
+        ki imajo vsoto elementov enako 'k'. V primeru, 
+        da taksne podmnozice ni, vrne prazno tabelo
+    '''
+    podmnozice =[set()]
+    resitev = []
+    for st in S:
+        nove_podmnozice = []
+        for stara in podmnozice:
+            novi = stara.copy()
+            novi.add(st)
+            if sum(novi) == k:# najdena resitev
+                resitev.append(novi)
+            #dodaj k moznim podmnozicam
+            nove_podmnozice.append(novi)
+            nove_podmnozice.append(stara)
+        podmnozice = nove_podmnozice
+    return resitev
+  \end{lstlisting}
+  \begin{opomba}
+    Zgornja funkcija nam vrne tabelo vseh podmnožic z vsoto enako $k$, ali pa nam vrne prazni seznam,
+    če takšna množica ne obstaja.
+  \end{opomba}
+  
+
+
+
+  \subsubsection{Časovna zahtevnost}
+  Če imamo množico z $n$ elementi, je vseh možnih podmnožic $2^n$. \newline
+  Za vsako podmnožico moramo še izračunati njeno vsoto, kar nam kvečjemu
+  vzame $n$ korakov. \newline
+  V najslabšem primeru(ko takšna podmnožica ne obstaja) je časovna zahtevnost $O(2^n \cdot n)$.
+  Izkaže se, da je tudi pričakovana časovna zahtevnost $O(2^n \cdot n)$(\url{https://en.wikipedia.org/wiki/Subset_sum_problem#Inclusion%E2%80%93exclusion},2022).
+
+
+ \subsection{Horowitz and Sahni}
+ Spodaj opisani algoritem sta prvič objavila 
+ Ellis Horowitz\footnote{Ellis Horowitz je ameriški računalničar, 
+ profesor računalništva in elektrotehnike na Univerzi v Južni Kaliforniji (\url{https://en.wikipedia.org/wiki/Ellis_Horowitz}, 2021).} 
+ in Sartaj Kumar Sahni.\footnote{Sartaj Kumar Sahni je računalniški znanstvenik v 
+ Združenih državah Amerike in je eden od pionirjev na področju podatkovnih 
+ struktur. Je profesor na oddelku za računalništvo, informatiko 
+ in inženiring na Univerzi Florida(\url{https://en.wikipedia.org/wiki/Sartaj_Sahni}, 2021).}
+ Glavna ideja je, da algoritem pohitrimo s tem, da podano množico razdelimo na dve enako veliki podmnožici, na katerih
+ zgeneriramo vse možne podmnožice. Podmnožice iz obeh delov nato kombiniramo tako, da se 
+ določenim kombinacijam izognemo. Na ta način ne preverimo vseh možnih podmnožic, kot
+ smo jih sicer pregledali z \textit{brute - force} algoritmom.
+\newline
+ Naredimo naslednje korake:
+
+ \begin{itemize}
+  \item Razdelitev množice:\newline
+  \begin{lstlisting}
+
+    Mn= {3,1,6,33,8,15,7} Vsota = 27
+    prva = {3,1,6,33} druga = {8,15,7}
+  \end{lstlisting}
+  % $Mn= \{3,1,6,33,8,15,7\}$
+  % $prva = \{3,1,6,33\}$ $druga = \{8,15,7\}$.
+  \begin{opomba}
+    Če je število elementov v množici liho, potem v prvo podmnožico damo eno
+    število več kot v drugo.
+  \end{opomba}
+  \item Za vsako množico, ki ima $n/2$ števil(ali $n/2 + 1$) 
+        zgeneriramo seznam parov možnih podmnožic in njihovih elementov. Teh parov imata vsaka po $2^{n/2}$. 
+  \begin{lstlisting}
+
+    prva_podm = [({},0),({3},3),({1},1),...,({3,1,6,33},43)]
+    druga_podm = [({},0),({8},8),({15},15),...,({8,15,7},30)]
+  \end{lstlisting} 
+
+
+        % $$prve\_podmnozice = [{},{}...] druge\_podmnozice = [{},{}....]$$
+  \item Oba seznama uredimo glede na vsoto podmnožic, ki so v seznamu.
+  %  $$prve_podmnožice = [{},{}....]druge_podmnožice = [{},{}....]$$
+  \item Če smo že našli kakšno podmnožico z ustrezno vsoto, potem smo z algoritmom končali,
+  sicer pa gremo na naslednji korak.
+  \item Prvi kazalec damo na začetek prvega seznama, drugi kazalec pa na konec drugega.
+  \item Če je vsota obeh vsot podmnožic, na katere kažeta kazalca, večja od iskane vsote, potem 
+  drugi kazalec premaknemo za eno v levo po drugem seznamu, sicer pa premaknemo prvi kazalec za ena v desno v prvem seznamu. \newline
+  Ta korak delamo, dokler ne pridemo do želene vsote(našli smo podmnožico. Ta je sestavljena iz množic,
+  na katere kažeta kazalca) ali pa pridemo s kazalci do konca seznama(nismo našli podmnožice). 
+\end{itemize}
+
+Na \hyperref[sec:slika1]{Sliki 1} si oglejmo primer. Kazalca sta predstavljena z modro oziroma rdečo črto. Modra barva označuje, da 
+je kazalec ostal na istem mestu v tabeli, rdeča črta pa označuje, da se je kazalec premaknil bodisi v levo bodisi v desno) 
+\newline
+\begin{figure}[h] \label{sec:slika1}
+  \caption{Primer Horowitz Sahni}
+  \includegraphics[width = 14.6cm]{p1}
+  \newline
+  \newline
+  Ker smo dobili želeno vsoto, smo z algoritmom zaključili.
+  Podmnožico, katere vsota elementov je enaka dani vsoti, pa dobimo tako,
+  da obe podmnožici, na kateri kažeta kazalca, združimo.\newline
+  V zgornjem primeru bi to bila podmnožica $\{1,3,8,15\}$.
+\end{figure}
+\begin{opomba}
+  Pri pregledu pregledamo vse možnosti, ki bi lahko imele pravino vsoto:
+  - če se podmnožica z iskano vsoto nahaja v eni izmed podmnožic, potem algoritem končamo že 
+  pred kombiniranjem podmnožic.
+  - Naj bo levi kazalec levo od $m_1$ desni pa desno od $m_2$.
+  Recimo, da je trenutna vsota manjša. To pomeni, da levi kazalec premaknemo v desno. Če pridemo na $m_1$ je vsota zagotovo večja, zato premikamo
+  desni kazalec... 
+  - če množica obstaja, potem je sestavljena iz množice $m_1$ iz $prva\_podm$ z vsoto $k_1$ in 
+  množice $m_2$ iz  $druga\_podm$ z vsoto $k_2$. Na začetku vemo, da je levi kazalec levo od $m_1$ desni pa desno od $m_2$.
+  Slej ko prej pride eden izmed kazalcov na $m_1$ oz $m_2$. Recimo, da je levi kazalec prišel prej na $m_1$. V tem koraku vemo, da je desni kazalec
+  še vedno desno od $m_2$. Vsota je potem zagotovo večja od iskane vsote, zato desni kazalec premaknemo v levo\dots
+  pride kazalec na $m_1$, vemo, da je bila prejšnja dobljena vsota manjša, ker smo prestavili levi kazalec. To pomeni, da je bil kazalec 
+  na desni na množici z vsoto, ki je večja od $k_2$. Sedaj je skupna vsota večja, zato moramo prestaviti desni kazalec v levo.
+  Prestavljali ga bomo toliko časa, dokler ne bo vsota zopet manjša oziroma enaka.
+  To bo natanko tedaj, ko bomo prišli do $m_2$. Podobno bi lahko trdili za primer, če gremo najprej na $m_2$\dots
+
+  
+
+\end{opomba}
+POPRAVI!!! UTEMELJI, ZAKAJ smo s tem res preverili VSE podmnožice, ki bi lahko imele tako vsoto!)
+
+
+\newpage
+ \subsubsection{Implementacija kode}
+ \begin{lstlisting}
+  def vsota_podmnozic_horowitz_sahni(S,k):
+    '''
+        Metoda horowitz-sahni, ki nam vrne prvo podmnozico 
+        iz mnozice 'S', ki ima vsoto elementov enako 'k'. 
+        V primeru, da taksne podmnozice ni, vrne prazno tabelo
+    '''
+    #Mnozico S razdelimo na dve podmnozici enakih velikosti
+    prva = S[:len(S)//2]
+    druga = S[(len(S)//2):]
+    #Zgeneriramo vse podmnozice in njihove vsote od prve in druge
+    #podmnozice.Vsako mnozico nato uredimo po vsotah mnozic
+    prva_podm = sorted(vse_podmnozice_z_vsoto(prva),key = lambda x: x[1])
+    druga_podm = sorted(vse_podmnozice_z_vsoto(druga),key = lambda x: x[1])
+    kazalec1 = 0
+    kazalec2 = len(druga_podm) - 1
+    while kazalec1 < len(prva_podm) and kazalec2 >= 0:
+        #sestejemo vsote
+        delna = prva_podm[kazalec1][1]+ druga_podm[kazalec2][1] 
+        if delna == k:#nasli smo podmnozico, ki je sestavljena iz
+                      #prva_podm[kazalec1] in druga_podm[kazalec2]
+            return prva_podm[kazalec1][0].union(druga_podm[kazalec2][0])
+        if delna < k:
+            kazalec1 += 1
+        else:
+            kazalec2 -= 1
+    return []
+\end{lstlisting}
+
+\begin{opomba}
+  Pri zgornji implementaciji je uporabljena funkcija \newline \textit{vse\_podmnozice\_z\_vsoto}, 
+  ki iz podane množice ustvari tabelo parov vseh podmnožic in vsot.
+\end{opomba}
+\subsubsection{Časovna zahtevnost}
+  Zgornji algoritem je prav tako eksponentne časovne zahtevnosti. Bolj natančno, časovna zahtevnost
+  je $O(2^{n/2} \cdot n/2)$. Prvi faktor($2^{n/2}$) sledi iz tega, da moramo zgenerirati $2^{n/2}$ podmnožic
+  (moramo jih zgenreirati $2 \cdot 2^{n/2} = 2^{n/2 + 1}$), drugi faktor $n/2$ pa dobimo zaradi računanja vsote vsake podmnožice
+  (sešteti moramo kvečjemu $n/2$ števil). Zadnji del algoritma, kjer prestavljamo kazalce in primerjamo vsote, 
+  ima časovno zahtevnost $O(2^{n/2})$, ker moramo nareditit kvečjemu $2 \cdot 2^{n/2}$ premikov. 
+ \newline
+
+  Poleg zgoraj omenjenih algoritmov obstajata še dva pogosto uporabljena algoritma, kjer je časovna zahtevnost eksponentna.
+  To sta algoritem \textit{Schroeppel in Shamir} ter algoritem   \textit{Howgrave-Graham in Joux}. 
+  Pri prvem množico razdelimo na 4 dele, vendar je v nadaljevanju postopek malo bolj kompleksen kot pri algoritmu
+  \textit{Horowitz and Sahni}. Pri prvem algoritmu je časovna zahtevnost ${O(2^{n/2}  \cdot  (n/4))}$ pri drugem pa
+  $O(2^{0.337n})$ (\url{https://en.wikipedia.org/wiki/Subset_sum_problem#Exponential_time_algorithms}, 2021).
+
+
+
+  \section{Rešitev z dinamičnim programiranjem}
+  Pri dinamičnem programiranju sta običajno možna dva pristopa: pristop naprej(\textit{top-down approach}) in pristop nazaj(\textit{bottom-up approach}).
+  Pri prvem gre za uporabo rekurzije z uporabo memoizacije, pri drugem pa lahko problem rešimo iterativno,
+  pomagamo pa si s pomočjo tabele. V nadaljevanju bo predstavljena iterativna rešitev problema.
+
+
+
+ \subsection{Iterativna rešitev}
+ Ideja algoritma je, da s sprotnim dodajanjem števil, preverjamo katere so vse možne vsote, ki jih
+ lahko dobimo z že dodanimi števili.\newline
+ Pri algoritmu si pomagamo s tabelo dimenzije $(n+1) \cdot (k+1)$, kjer je
+ $n$ velikost podane množice, $k$ pa vsota, ki jo želimo dobiti. Nad vsak stolpec tabele bomo napisali število (od 0 do $k$), 
+ levo od vsake vrstice pa števila, ki jih imamo v množici. Tabelo bomo polnili iz vrha
+ proti dnu, same vrednosti v tabeli (True/False) pa nam bodo povedale, katere vsote lahko naredimo s 
+ števili, navedenimi v levem stolpcu do te vrstice. 
+ \newline
+Primer: \label{sec:s1}
+\begin{figure}[h]
+  \caption{Primer tabele}
+  \label{sec:s2}
+\includegraphics[width=14.6cm]{s1}
+\centering
+\end{figure}\newline
+Iz zadnje vrstice s \hyperref[sec:s2]{slike 2} lahko razberemo, da iz števil $2,3$ in $6$ lahko naredimo vsote $0,2,3,5,6,8,9$ in $11$.
+Iz tretje vrstice lahko razberemo, da iz števil $2$ in $3$ lahko skonstruiramo množico, katere vsota števil 
+je enaka $0,2,3$ ali $5$ itd.  
+\newline Tabela je velikosti $(n+1)  \cdot  (k+1)$ in ne $n  \cdot  (k+1)$, ker v prvi vrstici
+'umetno' dodamo število 0. \newpage
+\subsubsection{Kako napolniti tabelo?}
+Tabelo s \hyperref[sec:s2]{slike 2} lahko zlahka sestavimo peš. 
+Oglejmo si, kako lahko postopek naredimo s pomočjo algoritma. 
+\newline
+\label{sec:s2}
+\begin{figure}[h]
+  \caption{Primer tabela 2}
+  \includegraphics[width=14.6cm]{s2}
+  Kako vemo, katere vsote je možno dobiti, ko vstavimo nov element v tabelo?
+Opazimo lahko tri stvari:
+\end{figure}
+\begin{itemize}
+  \item če smo s prejšnimi števili lahko dobili neko vsoto, potem jo  lahko tudi
+  po tem, ko dodamo novo število v tabelo,
+  \item število, ki ga vstavimo v tabelo, ne more vplivati na vsote, ki so manjše od dodanega števila
+  (to velja zato, ker smo predpostavili, da so v množici le nenegativna števila),
+  \item če sestavljamo vrstico za število $n$, potem lahko vsoto $k$ dobimo le v primeru, če smo s prejšnimi
+  števili že lahko dobili to vsoto(1. točka) ali pa, če smo s prejšnimi števili dobili vsoto $k-n$.
+\end{itemize}
+Če upoštevamo zgornje trditve, smo dobili algoritem, s katerim zapolnimo vsa mesta v tabeli.
+\newline Denimo, da sestavljamo vrstico $i$, kjer želimo dodati število $n$. Potem:
+\begin{itemize}
+  \item na vsa mesta v tabeli $A$, kjer je vsota manjša od  
+  števila, ki ga obravnavamo, prepišemo vrednosti zgornje vrstice iz tabele:
+  \[A(i,j) = A(i-1,j),\]
+  \item za mesta, kjer je vsota večja ali enaka obravnavanemu številu, pa pogledamo 
+  vrednosti iz zgornje vrstice: Če obravnavamo število $k$ za vsoto $j$, potem preverimo ali je možno
+  s prejšnimi števili dobiti bodisi vsoto $j$ bodisi vsoto $j-k$. 
+  \[A(i,j) = A(i-1,j) \text{ or }  A(i-1,j-k),\] kjer smo v $i$-ti vrstici dodali število $k$.
+\end{itemize}
+Zgoraj prikazano \hyperref[sec:s2]{tabelo} bi dopolnili na sledeči način:\newline
+\begin{figure}[h]
+  \caption{Sestavljanje tabele 2}  
+  \includegraphics[width=14.6cm]{s3}
+  \centering
+\end{figure}\newline
+
+Tabele nam ni treba dopolniti do konca. 
+Postopek lahko kočamo že prej, ko v zadnjem stolpcu dobimo vrednost $True$. To pomeni, da smo našli neko 
+kombinacijo števil, s katerimi lahko dobimo želeno vsoto. Če takšne kombinacije ni,
+potem bomo zapolnili celo tabelo, vrednost na desnem spodnjem mestu v tabeli pa bo $False$.\newline
+Poglejmo si zgornji algoritem na primeru:\newline
+$$Mn = \{2,3,15,10,6,7\}, vsota = 11$$
+
+\begin{figure}[h]
+  \caption{Primer dinamične rešitve: generiranje tabele}  
+  \includegraphics[width=14.6cm]{s4}
+  Ustvarili smo tabelo velikosti $7 \cdot 12$, kjer smo levo od vsake
+  vrstice zapisali eno od števil iz podane množice, nad vsak stolpec pa smo 
+  zaporedoma zapisali vsa števila od 0 do 11. Levo od prve vrstice v tabeli zapišemo 
+  število 0, vse vrednosti v prvi vrstici (razen v prvem stolpcu) pa zapolnemo s \textit{False}(F).
+\end{figure}\newpage
+
+
+\begin{figure}[h]
+  \caption{Primer dinamične rešitve: 2. vrstica}  
+  \includegraphics[width=14.6cm,height=4.6cm]{s5}
+  Pri obravnavi druge vrstice pogledamo, katere vsote lahko dobimo s prejšnimi števili(0) in 
+  številom 2. Na mestu v prvem in drugem stolpcu v tej vrstici prepišemo vrednosti iz zgornje(prve) vrstice,
+  za vrednosti na ostalih mestih pa pogledamo mesta bodisi zgoraj bodisi zgoraj in za dve mesti levo.
+\end{figure}
+Po nekaj korakih smo napolnili tabelo, kot je vidno na sliki 5.
+\begin{figure}[h]
+  \caption{Primer dinamične rešitve 5. vrstica} 
+   \includegraphics[width=14.6cm]{s8}
+   V tej vrstici bi se lahko  spremenila vrednost zgolj v predzadnjem in zadnjem stolpcu.
+   V predzadnjem stolpcu nastavimo vrednost na \textit{True}(T), ker smo s prejšnjimi števili 
+   lahko dobili vsoto $0 (10-10)$, v zadnjem stolpcu pa vrednost ostane \textit{False}(F), saj s prejšnimi 
+   števili ne moremo dobiti niti $1 (11 - 10)$ niti 11.
+
+  \end{figure}
+
+  \begin{figure}[h]
+  \caption{Primer dinamične rešitve 6. vrstica}
+  \includegraphics[width=14.6cm]{s9}
+  
+\end{figure}
+\newpage
+V zadnjem koraku smo v zadnjem stolpcu dobili vrednost True. To pomeni,
+da obstaja podmnožica množice $\{2,3,15,10,6,7\}$, katere elementi se seštejejo v $11$.
+\newpage
+\subsubsection{Implementacija kode}
+\begin{lstlisting}
+def dinamicna(set, sum):
+  n = len(set)
+  #Naredimo tavelo velikosti n+1 * k+1
+  subset =([[False for i in range(sum + 1)] for i in range(n + 1)])
+  #Prvi stolpec nastavimo na true
+  for i in range(n + 1):
+      subset[i][0] = True
+  #gremo od 2. vrstice naprej, ker v prvi smo dodali 'umetno' 0
+  for i in range(1, n + 1):
+      for vsota in range(1, sum + 1):
+          if vsota < set[i-1]: #stevilo je vecje od dane vsote, zato samo pogledamo zgornje vrednosti 
+              subset[i][vsota] = subset[i-1][vsota] 
+          if vsota >= set[i-1]:
+              subset[i][vsota] = (subset[i-1][vsota] or #PREVERIMO CE JE ZGORNJI TRUE
+                              subset[i - 1][vsota-set[i-1]]) 
+                # GREMO GOR IN LEVO KOLIKOR je DANO STEVILO
+                    #pregledamo posebej se za zadnji stolpec
+      vsota = sum
+      if vsota < set[i-1]: #stevilo je vecje od dane vsote, zato samo pogledamo zgornje vrednosti 
+          subset[i][vsota] = subset[i-1][vsota] 
+      if vsota >= set[i-1]:
+          subset[i][vsota] = (subset[i-1][vsota] or #PREVERIMO CE JE ZGORNJI TRUE
+                          subset[i - 1][vsota-set[i-1]]) # GREMO GOR IN LEVO KOLIKOR JE DANO STEVILO
+          if subset[i][vsota]:
+              return True #dobili smo neko kombinacijo. Lahko koncamo
+  #prisli smo do konca... v zadnjem stolpcu je False!
+  return False
+\end{lstlisting}
+
+\subsubsection{Časovna zahtevnost}
+Pri algoritmu moramo v najslabšem primeru (ko podmnožica ne obstaja) izpolniti vsa mesta
+v tabeli. Teh mest je $n \cdot k$, kjer je $n$ velikost množice, $k$ pa iskana vsota. Na vsakem mestu naredimo 
+kvečjemu 2 primerjavi, zato je časovna zahtevnost $O(n \cdot k)$. 
+
+\subsubsection{Možne izboljšave}
+Za obravnavanje poljubne vrstice v tabeli potrebujemo zgolj zgornjo vrstico. 
+Zato si ni potrebno shranjevati celotne tabele, ampak si je dovolj zapomniti le zadnjo obravnavano
+vrstico. \newline
+Časovna zahtevnost se v tem primeru ne spremeni, spremeni pa se prostorska zahtevnost, ki
+je v prejšnem primeru $O(n\cdot k)$, sedaj pa je le $O(k)$ (podatke si shranjujemo v dva seznama).
+
+
+\section{Primerjava algoritmov}
+\begin{table}[h]
+  \begin{tabular}{|l|l|l|}
+  \hline
+                     & Horowitz and Sahni                                                               & \begin{tabular}[c]{@{}l@{}}Dinamično \\ programiranje\end{tabular}                    \\ \hline
+  \textbf{PREDNOSTI} & \begin{tabular}[c]{@{}l@{}}Enostavno dobimo vse \\ možne podmnožice\end{tabular} & \begin{tabular}[c]{@{}l@{}}V večini primerov \\ hitrejši algoritem\end{tabular}       \\ \hline
+  \textbf{SLABOSTI}  & Eksponentna časovna zahtevnost                                                   & \begin{tabular}[c]{@{}l@{}}Časovna zahtevnost \\ odvisna od želene vsote\end{tabular} \\ \hline
+  \end{tabular}
+  \end{table}
+\begin{opomba}
+V zgornjo tabeli ni algoritma \textit{brute - force}. Njegove lastnosti so podobne kot pri algoritmu
+\textit{Horowitz and Sahni}, s tem da je še počasnejši.
+\end{opomba}
+\subsubsection{Grafična predstavitev}
+Spodaj je prikazanih še nekaj grafičnih primerjav med algoritmi. Pri poizkusih sem za 
+želeno vsoto vzel vrednost $k = 1000$. \newpage
+\begin{figure}[h]
+  \caption{Graf: primerjava HS in dinamična} 
+  \centering 
+  \includegraphics[height = 6.9cm]{g1}
+\end{figure}
+  Na zgornjem grafu se opazi, da algoritem \textit{Horowitz and Sahni} 
+  'eksplodira' zelo hitro. Za rešitev z dinamičnim programiranjem je 
+  za dane velikosti množic(do 30), računalnik potreboval 
+  zanemarljivo malo časa.\newline
+  Na spodnjem garfu pa opazimo, da \textit{Brute - force} algoritem eksplodira še bistveno hitreje(okoli $n = 20$).
+  \begin{figure}[h]
+    \centering 
+  \caption{Graf: prirmerjava HS in BF}  
+  \includegraphics[height = 6.9cm]{g2}
+  
+\end{figure}
+
+\newpage
+  \begin{figure}[]
+  \caption{Graf: dinamična rešitev} 
+  \centering
+  \includegraphics[height = 6.9cm]{g3}\newline
+\end{figure}
+Za fiksno vsoto (v tem primeru $k = 1000$) narašča čas linearno, kar se ujema
+  s trditvijo, da je časovna zahtevnost $O(n\cdot k)$. Če $k$ fiksiramo 
+  je časovna zahtevnost linearna ($O(n)$).
+
+\section{Uporaba}
+Problem vsote podmnožic se lahko uporablja v računalništvu za preverjanje gesel.
+Najpreprostejši način preverjanja bi bil, da bi program, ki preverja pravilnost identitete,
+imel kopijo gesla shranjeno nekje v datoteki. Problem bi nastal, da vsak, ki bi videl
+to datoteko bi s tem prišel do gesel ostaliih uporabnikov.
+Nekateri sistemi uporabijo rešitev, da namesto da bi v datoteki shranjevali gesla(nize znakov)
+shranjujejo število, ki predstavlja vsoto. \newline
+Ko uporabnik venese niz zankov, program pretvori dano zaporedje znakov v neko podmnožico števil.
+ Če smo vnesli pravo zaporedje znakov, bo program vrnil takšno podmnožico, katere vsota
+je enaka tisti, ki je shranjena v datoteki. Na tak način naše geslo ni nikjer vidno.
+(\url{http://www.math.stonybrook.edu/~scott/blair/Other_uses_subset_sum.html},2002)
+POPRAVI!!!VIR
+\newpage
+\section{Viri}
+\begin{itemize}
+\item Subset Sum Problem | DP-25,  \newline
+\url{https://www.geeksforgeeks.org/subset-sum-problem-dp-25/}, \newline
+(ogled: 28.\ december 2021).
+\item Subset Sum Problem Dynamic Programming,
+\url{https://www.youtube.com/watch?v=s6FhG--P7z0&ab_channel=TusharRoy-CodingMadeSimple},\newline
+(ogled: 28.\ december 2021).
+\item Subset sum problem, Wikipedia, the free encyclopedia,\newline
+\url{https://en.wikipedia.org/wiki/Subset_sum_problem} \newline
+(ogled: 28.\ december 2021).
+POPRAVI!!!DODAJ VIRE
+\end{itemize}
+
+  
+
+\end{document}
